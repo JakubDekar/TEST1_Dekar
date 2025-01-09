@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <title>Testování MojeAplikace</title>
+</head>
+<body>
+    <h1 align="center">Vítejte</h1>
+    <form id="myForm" action="index.php" method="get">
+        <label for="firstname">Jméno:</label>
+        <input type="text" id="firstname" name="firstname" required><br>
+        
+        <label for="city">Město:</label>
+        <input type="text" id="city" name="city" required><br>
+        
+        <input type="submit" value="Odeslat">
+    </form>
+    <p id="result"></p>
+    <p id="warning" style="color: red;"></p> 
+    
+    <script>
+        const form = document.getElementById('myForm');
+        const resultParagraph = document.getElementById('result');
+        const warningParagraph = document.getElementById('warning');
+
+        // Funkce pro kontrolu, zda uživatel zadal čísla nebo speciální znaky
+        function containsInvalidChars(str) {
+            //Tento výraz umožní pouze písmena
+            const invalidChars = /[^A-Za-záéíóúůýčšřÁÉÍÓÚŮÝČŠŘěžŽŤťďĎčČ\s]/;
+            return invalidChars.test(str);
+        }
+
+        //Funkce pro kontrolu čísel
+        function containsNumber(str) {
+            const numberPattern = /\d/;
+            return numberPattern.test(str);
+        }
+
+        // Funkce pro počítání samohlásek a souhlásek
+        function countVowelsAndConsonants(str) {
+            const vowels = 'aeiouAEIOUáéěíóúýáäÁĚÉÍÓÚŮ';
+            let vowelCount = 0, consonantCount = 0;
+
+            for (let char of str) {
+                if (/[a-zA-ZáéíóúůýčšřÁÉÍÓÚŮÝČŠŘěžŽŤťďĎčČ]/.test(char)) {
+                    if (vowels.includes(char)) {
+                        vowelCount++;
+                    } else {
+                        consonantCount++;
+                    }
+                }
+            }
+            return { vowelCount, consonantCount };
+        }
+
+        // spracování formuláře po odeslaní
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const firstName = form.firstname.value.trim();
+            const city = form.city.value.trim();
+
+
+
+            //kontrola specalnich znaku
+            if (containsInvalidChars(firstName) || containsInvalidChars(city)) {
+                warningParagraph.textContent = 'Speciální znaky nejsou povoleny v polích "Jméno" a "Město". Odstraňte je a zkuste to znovu.';
+                resultParagraph.textContent = '';  
+                return;
+            }
+
+          // kontrola cisel
+            if (containsNumber(firstName) || containsNumber(city)) {
+                warningParagraph.textContent = 'Čísla nejsou povolena v polích "Jméno" a "Město". Odstraňte je a zkuste to znovu.';
+                resultParagraph.textContent = '';  
+                return;
+            } else {
+                warningParagraph.textContent = ''; 
+
+                // Počítání samohlásek a souhlásek pro Jméno a Město
+                const firstNameCounts = countVowelsAndConsonants(firstName);
+                const cityCounts = countVowelsAndConsonants(city);
+
+              
+                const result = `Vítejte, ${firstName} z města ${city}. Ve vašem jménu je ${firstNameCounts.vowelCount} samohlásek a ${firstNameCounts.consonantCount} souhlásek. V městě ${city} je ${cityCounts.vowelCount} samohlásek a ${cityCounts.consonantCount} souhlásek.`;
+                resultParagraph.textContent = result;
+            }
+        });
+    </script>
+</body>
+</html>
